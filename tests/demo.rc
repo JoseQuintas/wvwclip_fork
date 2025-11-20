@@ -1,0 +1,11 @@
+//DEMO.RC
+/////////////////////////////////////////////////////////////////////////////
+// Add manually edited resources here...
+
+// IDR_MANIFEST 1 - controls are in W7/W10/W11 style - does not work
+// IDR_MANIFEST 2 - controls are in older style using comctl32.dll version 6.0.0.0
+#define IDR_MANIFEST  2
+#define RT_MANIFEST  24
+IDR_MANIFEST RT_MANIFEST ".\\demo.xml"
+
+
