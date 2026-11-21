@@ -1,32 +1,36 @@
--rebuild
--n -w0 -ql -es2
--optim
+#-rebuild
+#-n
+#-w0
+#-ql
+#-es2
+#-optim
 -strip
 -hblib
 
 #xhb.hbc
 #hbxpp.hbc
 
--o${hb_name}
+-olib/${hb_name}
 
 # install files and paths
--instfile=misc:*.hbc
--instfile=misc:*.hbx
--instfile=misc:*.txt
--instfile=misc:*.pdf
--instfile=inc:*.ch
--instfile=tests:tests/*.*
--instfile=tests_sub:tests/data/*.*
+#-instfile=misc:*.hbc
+#-instfile=misc:*.hbx
+#-instfile=misc:*.txt
+#-instfile=misc:*.pdf
+#-instfile=inc:*.ch
+#-instfile=tests:tests/*.*
+#-instfile=tests_sub:tests/data/*.*
 
 # misc files, public headers, tests
--instpath=misc:${hb_addons}/wvwclip/
--instpath=inc:${hb_addons}/wvwclip/
--instpath=tests:${hb_addons}/wvwclip/tests/
--instpath=tests_sub:${hb_addons}/wvwclip/tests/data/
+#-instpath=misc:${hb_addons}/wvwclip/
+#-instpath=inc:${hb_addons}/wvwclip/
+#-instpath=tests:${hb_addons}/wvwclip/tests/
+#-instpath=tests_sub:${hb_addons}/wvwclip/tests/data/
 
-${hb_name}.hbx
+../lib/${hb_name}.hbx
 
-wvwclipclass.prg
-wvwclasses.prg
+-Isource/
+source/wvwclipclass.prg
+source/wvwclasses.prg
 
 

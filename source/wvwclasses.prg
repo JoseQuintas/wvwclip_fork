@@ -17,12 +17,14 @@
 
 #define WVW_CONTROL_EDITBOX  5
 
+MEMVAR GetList
+
 CLASS WVWDrawLabel
 
    EXPORT:
 
    DATA cClassName    INIT "DRAWLABEL"
-   // DATA nControlID 
+   // DATA nControlID
 
    DATA nRow
    DATA nCol
@@ -56,7 +58,7 @@ METHOD New( nRow, nCol, cLabel, nAlign, nEscapement, cClr, aFont ) CLASS WVWDRAW
    ::nHeight     := aFont[ 2 ] + 1
    ::nWeight     := aFont[ 3 ]
 
-   // DOC 
+   // DOC
    // wvw_DrawLabel( nWinNum, ;
    //    nRow, nCol, cLabel, nAlign, nEscapement, nTextColor, ;
    //    nBkColor, cFontFace, nHeight, nWidth, nWeight, ;
@@ -75,7 +77,7 @@ CLASS WVWDrawLabelObj
    EXPORT:
 
    DATA cClassName    INIT "DRAWLABELOBJ"
-   // DATA nControlID 
+   // DATA nControlID
 
    DATA nTop
    DATA nLeft
@@ -95,8 +97,8 @@ ENDCLASS
 
 METHOD New(  nTop, nLeft, nBottom, nRight, cLabel, nWidth, nAlignH, cClr, aFont, aOffSet ) CLASS WVWDRAWLABELOBJ
 
-   DEFAULT nBottom      TO nTop 
-   DEFAULT nRight       TO nLeft + Len( cLabel ) 
+   DEFAULT nBottom      TO nTop
+   DEFAULT nRight       TO nLeft + Len( cLabel )
    DEFAULT nWidth       TO Len( cLabel )
    DEFAULT nAlignH      TO TA_RIGHT
    DEFAULT cClr         TO SetColor()
@@ -105,7 +107,7 @@ METHOD New(  nTop, nLeft, nBottom, nRight, cLabel, nWidth, nAlignH, cClr, aFont,
    ::nTop        := nTop
    ::nLeft       := nLeft
    ::nBottom     := nBottom
-   ::nRight      := nRight 
+   ::nRight      := nRight
    ::cLabel      := cLabel
    ::nAlignHorz  := nAlignH
    ::nTextColor  := wvw_GetRGBColor( hb_ColorToN( Token( cClr, "/", 1 ) ) )
@@ -147,7 +149,7 @@ CLASS WVWPushButton
    METHOD Destroy()
    METHOD Disable()
    METHOD Enable()
-   METHOD SetFocus()
+   METHOD SetFocus( nId )
    METHOD HitTest( nMRow, nMCol )
 
    HIDDEN:
@@ -171,7 +173,7 @@ METHOD New( nRow, nCol, cCaption, bSBlock, aOffSet, nWidth ) CLASS WVWPushButton
    ::bBlock     :=  { | nWinNum, nId | ::PBHandler( nWinNum, nId ) }
 
    // DOC
-   // wvw_pbCreate( nWinNum , 
+   // wvw_pbCreate( nWinNum ,
    //    nTop, nLeft, nBottom, nRight, cText, cImage/nImage, bBlock, aOffset,
    //    nStretchBitmap, lMap3DColors, @hControl, nStyle )
    ::nControlID := { wvw_pbCreate( , ::nRow, ::nCol, ::nRow, ::nCol + ::nWidth - 1, ::cCaption, , ::bBlock, ::aOffSet ) }
@@ -204,7 +206,7 @@ METHOD Enable() CLASS WVWPushButton
 METHOD SetFocus( nId ) CLASS WVWPushButton
 
    DEFAULT nId TO ::nControlID[ 1 ]
-   
+
    wvw_pbSetFocus( , nId )
 
    RETURN 0
@@ -385,7 +387,7 @@ CLASS WVWEditBox
 ENDCLASS
 
 METHOD New( nTop, nLeft, nBottom, nRight, nStyle, nMaxChar, aOffset, aFont ) CLASS WVWEditBox
-   
+
    ::nTop       := nTop
    ::nLeft      := nLeft
    ::nBottom    := nBottom
@@ -410,7 +412,7 @@ METHOD New( nTop, nLeft, nBottom, nRight, nStyle, nMaxChar, aOffset, aFont ) CLA
    //    nTop, nLeft, nBottom, nRight, cText, bBlock, lMultiline, nMoreStyle,
    //    nMaxChar, nReserved, aOffset)
    ::nControlID := { wvw_ebCreate( , ::nTop, ::nLeft, ::nBottom, ::nRight, , ::bBlock, ::lMultiline, ::nStyle, ::nMaxChar, , ::aOffset ) }
-   
+
    AddGuiCtl( , { || ::Destroy() } )
 
    RETURN Self
@@ -441,7 +443,7 @@ METHOD SetText( cVar ) CLASS WVWEditBox
 METHOD GetText() CLASS WVWEditBox
 
    // GTWVW(HB32) lSoftBreak .T. does not work accurately.
-   RETURN wvw_ebGetText( , ::nControlID[ 1 ] ) 
+   RETURN wvw_ebGetText( , ::nControlID[ 1 ] )
 
 METHOD PasteText( cVar ) CLASS WVWEditBox
    // Code sequence is important.
@@ -451,7 +453,7 @@ METHOD PasteText( cVar ) CLASS WVWEditBox
    hb_gtInfo( HB_GTI_CLIPBOARDDATA, cVar )      // Setup clipboard
    win_SendMessage( nhwnd, WM_PASTE, 0, 0 )     // paste to editbox.
    hb_gtInfo( HB_GTI_CLIPBOARDDATA, clipbrd )   // restore clipboard
-   
+
    RETURN 0
 
 METHOD HitTest( nMRow, nMCol ) CLASS WVWEditBox
@@ -800,7 +802,7 @@ METHOD HitTest( nMRow, nMCol ) CLASS WVWRadioGroup
       nMCol >= ::nLeft .AND. ;
       nMRow <= ::nBottom .AND. ;
       nMCol <= ::nRight
-   
+
       RETURN ::nButton
    ENDIF
 
@@ -905,7 +907,7 @@ METHOD Refresh() CLASS WVWScrollBar
    LOCAL xordKeyNo := iif( ordNumber() > 0, ordKeyNo(), RecNo() )
    LOCAL nLastRec  := iif( ordNumber() > 0, ordKeyCount(), LastRec() )
 
-   // DOC 
+   // DOC
    // wvw_xbUpdate( nWinNum, nXBId, nPos, nPageSize, nMin, nMax )
    wvw_xbUpdate( , ::nControlID[ 1 ], ;
       xordKeyNo, ;
@@ -927,7 +929,7 @@ METHOD Disable() CLASS WVWScrollBar
    wvw_xbEnable( , ::nControlID[ 1 ], ESB_DISABLE_BOTH )
 
    RETURN 0
-   
+
 METHOD Skipper( nSkip )
 
    // For use with @... BROWSE
@@ -989,12 +991,12 @@ METHOD XBHandler( nWinNum, nXBid, nXBmsg, nXBPos ) CLASS WVWScrollBar
       IF aInfo[ 5 ] == 1                     // min
          // Moving to TOP
          ::oBrowse:GoTop()
-   
+
       ELSE
          IF aInfo[ 5 ] >= nLastRec
             // Moving to BOTTOM
             ::oBrowse:GoBottom()
-      
+
          ELSE
             // Moving to a new position
             IF ordNumber() > 0
@@ -1009,7 +1011,7 @@ METHOD XBHandler( nWinNum, nXBid, nXBmsg, nXBPos ) CLASS WVWScrollBar
       // Update whole browse display to reflect
       // thumb track movement.
       ::oBrowse:RefreshAll()
-      
+
    CASE nXBmsg == SB_ENDSCROLL
 
       // This event occurs after each of the others.
@@ -1029,6 +1031,8 @@ METHOD XBHandler( nWinNum, nXBid, nXBmsg, nXBPos ) CLASS WVWScrollBar
 
    // Update scrollbar resulting from cursor movement.
    ::Refresh()
+
+   (nXBPos)
 
    RETURN 0
 
@@ -1054,7 +1058,7 @@ CLASS WVWScrollBarA
    METHOD Refresh( mRatio )
    METHOD Enable()
    METHOD Disable()
-      
+
    HIDDEN:
 
    METHOD XBHandler( nWinNum, nXBid, nXBmsg, nXBPos )
@@ -1098,7 +1102,7 @@ METHOD Refresh( mRatio ) CLASS WVWScrollBarA
 
    DEFAULT mRatio TO 1
 
-   // DOC 
+   // DOC
    // wvw_xbUpdate( nWinNum, nXBId, nPos, nPageSize, nMin, nMax )
    wvw_xbUpdate( , ::nControlID[ 1 ], ;
       ::oBrowse:recNo, ;
@@ -1120,12 +1124,12 @@ METHOD Disable() CLASS WVWScrollBarA
    wvw_xbEnable( , ::nControlID[ 1 ], ESB_DISABLE_BOTH )
 
    RETURN 0
-   
+
 METHOD XBHandler( nWinNum, nXBid, nXBmsg, nXBPos ) CLASS WVWScrollBarA
 
    // Bof() and Eof() is not available here.
    LOCAL nLastRec := Len( ::oBrowse:data )
-   LOCAL aInfo := wvw_xbInfo( nWinNum, nXBid )
+   //LOCAL aInfo := wvw_xbInfo( nWinNum, nXBid )
 
    // DEBUG
    // DispOutAt(2,0,time())
@@ -1181,7 +1185,7 @@ METHOD XBHandler( nWinNum, nXBid, nXBmsg, nXBPos ) CLASS WVWScrollBarA
       // Update whole browse display to reflect
       // thumb track movement.
       ::oBrowse:RefreshAll()
-      
+
    CASE nXBmsg == SB_ENDSCROLL
 
       // This event occurs after each of the others.
@@ -1202,7 +1206,9 @@ METHOD XBHandler( nWinNum, nXBid, nXBmsg, nXBPos ) CLASS WVWScrollBarA
    // Update scrollbar resulting from cursor movement.
    ::Refresh()
 
+   (nxbid)
+
    RETURN 0
-   
+
 
 // EOF: WVWCLASSES.PRG

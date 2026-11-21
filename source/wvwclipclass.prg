@@ -8,7 +8,7 @@
          Program: WVWCLIPCLASS.PRG
                   Class to manage Visual Clipper via GTWVW.
 
-*/ 
+*/
 
 #include "inkey.ch"
 #include "common.ch"
@@ -31,8 +31,10 @@ STATIC aGuiObjs := {}
 // native GUI objects.
 STATIC aGUICtls := {}
 
+   MEMVAR GetList
+
 // Window type array for each window.
-// Contains window type, linespacing and linespace colour. 
+// Contains window type, linespacing and linespace colour.
 STATIC aWinType := {}
 
 CLASS WApp
@@ -41,10 +43,10 @@ CLASS WApp
 
    DATA lGUIApp       INIT .T.          // GUI App
    DATA cAppIcon      INIT ''           // App icon
-   DATA cAppTitle     INIT ''           // App title 
+   DATA cAppTitle     INIT ''           // App title
 
    METHOD New( lGUIApp, cAppIcon, cAppTitle ) CONSTRUCTOR
-   METHOD WInit( cTitle )   
+   METHOD WInit( cTitle )
    METHOD WOpen( nTop, nLeft, nBottom, nRight, cTitle, lGUIWin, lCentre, nLineSpacing )
    METHOD WPopup( nTop, nLeft, nBottom, nRight, lGUIWin, lCentre, nLineSpacing )
    METHOD WClose()
@@ -57,15 +59,15 @@ ENDCLASS
 
 METHOD New( lGUIApp, cAppIcon, cAppTitle ) CLASS WApp
 
-   LOCAL aPalette, nLineSpacing, LSColor
-   
+   LOCAL aPalette // , nLineSpacing, LSColor
+
    SET EVENTMASK TO INKEY_ALL - INKEY_MOVE
 
    DEFAULT lGUIApp TO .F.
    DEFAULT cAppIcon TO ''
    DEFAULT cAppTitle TO ''
-   
-   ::lGUIApp   := lGUIApp 
+
+   ::lGUIApp   := lGUIApp
    ::cAppIcon  := cAppIcon
    ::cAppTitle := cAppTitle
 
@@ -117,39 +119,39 @@ METHOD WinSetup( lGUIWin ) CLASS WApp
    DEFAULT lGUIWin TO ::lGUIApp
 
    IF lGUIWin
-      
+
       // Settings for GUI window.
-      nLineSpacing :=  LINESPACING 
-      
+      nLineSpacing :=  LINESPACING
+
       // Default font and colour settings.
       wvw_SetFont( , DATAFONTNAME, DATAFONTSIZE, 0 )
       SetColor( "N/W, W+/B*, , , N/W*" )
       LSColor := ColorToN( "W" )
-      
+
    ELSE
-      
+
       // Settings for CUI window.
       // Set screen font - Must keep the width at 11 otherwise windows controls don't lineup
       // DOC wvw_SetFont( WinNum, cFontFace, nFontHeight, nFontWidth, nFontWeight, nFontQuality )
       nLineSpacing := 0
-      
+
       // Default font and colour settings.
       wvw_SetFont( , DATAFONTNAME, DATAFONTSIZE + 2, ( DATAFONTSIZE + 2 ) / 2, PROOF_QUALITY )
-      LSColor := ColorToN( "N" ) // TODO
+      //LSColor := ColorToN( "N" ) // TODO
       LSColor := ColorToN( ;
          GetClrBack( ;
          Token( SetColor() ), ",", 1 ) ;
       )
 
    ENDIF
-   
+
    // Set linepacing
    wvw_SetLineSpacing( , nLineSpacing )
-   
+
    // Set linepacing colour
    wvw_SetLSpaceColor( , LSColor )
    wvw_SetPen( PS_SOLID, , LSColor )
-   
+
    // Remember window type
    AAdd( aWinType, { lGUIWin, nLineSpacing, LSColor } )
 
@@ -159,13 +161,13 @@ RETURN NIL
 // Open a new window.
 METHOD WOpen( nTop, nLeft, nBottom, nRight, cTitle, lGUIWin, lCentre, nLineSpacing ) CLASS WApp
 
-   LOCAL nWinNum, LSColor
+   LOCAL nWinNum // , LSColor
 
    // Default to main window's values.
    DEFAULT lGUIWin TO ::lGUIApp
    DEFAULT lCentre TO .F.
    DEFAULT nLineSpacing TO iif( lGUIWin, LINESPACING, 0 )
-   
+
    // DOC wvw_nOpenWindow( cWinName, row1, col1, row2, col2, nStyle, nParentWin, nExStyle )
    nWinNum := wvw_nOpenWindow( cTitle, nTop, nLeft, nBottom, nRight )
 
@@ -196,7 +198,7 @@ METHOD WPopup( nTop, nLeft, nBottom, nRight, lGUIWin, lCentre, nLineSpacing ) CL
 
    // DOC wvw_nOpenWindow( cWinName, row1, col1, row2, col2, nStyle, nParentWin, nExStyle )
    nWinNum := wvw_nOpenWindow( , nTop, nLeft, nBottom, nRight, WS_POPUPWINDOW )
-   
+
    ::WinSetup( lGUIWin )
 
    // Set linespacing and linepacing colour.
@@ -245,11 +247,11 @@ METHOD WInit( cTitle ) CLASS WApp
 // Clear window's GUI objects first
 // and then clear window.
 METHOD WCLS() CLASS WApp
-   
+
    ClrGuiObjs( TOPWINDOW )
    ClrGuiCtls( TOPWINDOW )
    hb_Scroll()
-   
+
    GetList := {}
 
    RETURN 0
@@ -268,8 +270,8 @@ METHOD WClose() CLASS WApp
    ENDIF
 
    RETURN 0
-   
-   
+
+
 // *** custom get reader for GUI controls ***
 //
 // Custom reader for oGet, a GET object hidden beneath a Control.
@@ -290,14 +292,14 @@ FUNCTION GenReader( oGet, bAction )
    CASE nKeyStd == K_ENTER
 
       // In WVW_CB_KBD_CLIPPER mode for COMBOBOX we will never get here
-      
+
       IF HB_ISBLOCK( bAction )
          Eval( bAction )
          oGet:exitState := GE_NOEXIT
       ELSE
          oGet:exitState := GE_DOWN
       ENDIF
-      
+
       oGet:exitState := GE_DOWN
 
    CASE nKeyStd == K_UP .OR. nKeyStd == K_LEFT
@@ -362,7 +364,7 @@ FUNCTION GenReader( oGet, bAction )
       // Example: SetKey( K_F7,  { || EBPrint( cText ) } )
       Eval( bKeyBlock )
       oGet:exitState := GE_NOEXIT
-   
+
    OTHERWISE
       // Ignore all other keystrokes.
       oGet:exitState := GE_NOEXIT
@@ -386,11 +388,11 @@ FUNCTION wvw_SetFocus( nWinNum )
    IF nWinNum <> TOPWINDOW
       // Set focus to topmost window
       win_SetFocus( wvw_GetWindowHandle( TOPWINDOW ) )
-      
+
       // ... and to GET if any.
       // This is needed to ensure GUI control does not lose focus.
       oGet := GetActive()
-      
+
       IF ! Empty( oGet )
          // IF HB_ISOBJECT( oGet:control ) // TODO
          IF ! Empty( oGet:control )
@@ -399,7 +401,7 @@ FUNCTION wvw_SetFocus( nWinNum )
          ENDIF
       ENDIF
    ENDIF
-      
+
    RETURN 0
 
 
@@ -581,7 +583,7 @@ FUNCTION MenuFont()
 
    // For Console style menus drawn using LABELOBJ only.
    RETURN { LABELFONTNAME, Std_FontSize() + 4, FW_MEDIUM }
-   
+
 
 FUNCTION LabelFont()
 
@@ -596,7 +598,7 @@ FUNCTION LabelFont()
 FUNCTION ColumnFont()
 
    RETURN { LABELFONTNAME, Std_FontSize() - 1, FW_NORMAL }
-   
+
 
 FUNCTION SBCreate( aParts )
    LOCAL x
@@ -615,8 +617,7 @@ RETURN 0
 
 
 // Display message in main windows's status bar.
-FUNCTION SBSetText()
-   PARAMETERS nPartno, cText
+FUNCTION SBSetText( nPartno, cText )
 
    DEFAULT nPartno TO 0
    DEFAULT cText TO ''
@@ -690,7 +691,7 @@ FUNCTION EnableMenu( nWinNum, nNumItem )
    wvw_DrawMenuBar( nWinNum )   // to force redraw of menu
 
    RETURN 0
-   
+
 
 FUNCTION DisableToolbar( nWinNum )
 
